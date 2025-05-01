@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const upload = require('../middlewares/upload');
 const {
   createNotice,
   getAllNotices,
@@ -8,10 +9,10 @@ const {
   deleteNotice
 } = require('../controllers/noticeController');
 
-router.post('/create', createNotice);
+router.post('/create', upload.single('profile'), createNotice);
+router.put('/update', upload.single('profile'), updateNotice);
 router.get('/getall', getAllNotices);
-router.get('/:id', getNoticeById);
-router.put('/update', updateNotice);
-router.delete('/:id', deleteNotice);
+router.get('/getbyid/:id', getNoticeById);
+router.delete('/delete/:id', deleteNotice);
 
 module.exports = router;
