@@ -18,6 +18,7 @@ app.use(express.json()); // Parse JSON bodies
 
 // Routes
 app.use('/api/notices', require('./routes/noticeRoutes'));
+app.use('/api', require('./routes/authRoutes'));
 
 // Root route
 app.get('/', (req, res) => {
