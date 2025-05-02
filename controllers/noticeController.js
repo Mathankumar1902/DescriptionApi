@@ -81,35 +81,19 @@ exports.updateNotice = async (req, res) => {
 
 
 // Delete notice
+// Delete entire notice by ID
 exports.deleteNotice = async (req, res) => {
   try {
     const { id } = req.params;
-    const fieldsToDelete = req.body; // expects: { status: true, title: true } etc.
 
-    // If no fields provided, delete the whole document
-    if (!fieldsToDelete || Object.keys(fieldsToDelete).length === 0) {
-      const deleted = await Description.findByIdAndDelete(id);
-      if (!deleted) return res.status(404).json({ error: 'Notice not found' });
-      return res.json({ message: 'Entire notice deleted' });
+    const deleted = await Description.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ error: 'Notice not found' });
     }
 
-    // Build $unset object from provided field keys
-    const unsetFields = {};
-    for (const key of Object.keys(fieldsToDelete)) {
-      unsetFields[key] = "";
-    }
-
-    const updated = await Description.findByIdAndUpdate(
-      id,
-      { $unset: unsetFields },
-      { new: true }
-    );
-
-    if (!updated) return res.status(404).json({ error: 'Notice not found' });
-
-    res.json({ message: 'Selected fields deleted', data: updated });
+    res.json({ message: 'Notice deleted successfully' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete notice or fields' });
+    res.status(500).json({ error: 'Failed to delete notice' });
   }
 };
