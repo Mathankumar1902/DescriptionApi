@@ -41,7 +41,7 @@ exports.login = async (req, res) => {
 
   // Check for missing fields
   if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
+    return res.status(400).json({ error: 'Email and password are required to login' });
   }
 
   try {
