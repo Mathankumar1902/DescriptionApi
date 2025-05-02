@@ -1,23 +1,42 @@
 const User = require('../models/User');
 
-// Get all usernames
+// Utility to validate email format
+const isValidEmail = (email) => {
+  const regex = /^\S+@\S+\.\S+$/;
+  return regex.test(email);
+};
+
+// Get all users (email only)
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find({}, 'username'); 
+    const users = await User.find({}, 'email');
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch users' });
   }
 };
 
-// Register a new user (no password hashing)
+// Register a new user
 exports.register = async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const existingUser = await User.findOne({ username });
-    if (existingUser) return res.status(400).json({ error: 'User already exists' });
+  const { email, password } = req.body;
 
-    const user = new User({ username, password }); 
+  // Check for missing fields
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  // Validate email format
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already exists' });
+    }
+
+    const user = new User({ email, password });
     await user.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
@@ -25,15 +44,22 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login (no bcrypt comparison)
+// Login user
 exports.login = async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
+
+  // Check for missing fields
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    if (password !== user.password)
+    if (password !== user.password) {
       return res.status(401).json({ error: 'Invalid password' });
+    }
 
     res.json({ message: 'Login successful' });
   } catch (error) {
