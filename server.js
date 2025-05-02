@@ -15,6 +15,8 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true }));
+
 
 // Routes
 app.use('/api/notices', require('./routes/noticeRoutes'));
