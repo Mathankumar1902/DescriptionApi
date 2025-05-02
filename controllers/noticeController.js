@@ -25,12 +25,19 @@ exports.createNotice = async (req, res) => {
 exports.getAllNotices = async (req, res) => {
   try {
     const notices = await Description.find();
+
+    // Check if no notices exist
+    if (notices.length === 0) {
+      return res.status(404).json({ message: 'No notices found in the database' });
+    }
+
     res.json({ message: 'Notices retrieved successfully', data: notices });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch notices' });
   }
 };
+
 
 // Get notice by ID
 exports.getNoticeById = async (req, res) => {
