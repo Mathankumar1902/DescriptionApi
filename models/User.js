@@ -16,18 +16,18 @@ exports.register = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check for missing fields
+    // Validate inputs
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // Check if user already exists
+    // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
-    // Create and save user
+    // Save new user
     const user = new User({ email, password });
     await user.save();
 
@@ -43,7 +43,7 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check for missing fields
+    // Validate inputs
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
@@ -54,12 +54,12 @@ exports.login = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Check password
+    // Compare password
     if (password !== user.password) {
       return res.status(401).json({ error: 'Invalid password' });
     }
 
-    res.json({ message: 'Login successful' });
+    res.status(200).json({ message: 'Login successful' });
   } catch (error) {
     console.error("Login error:", error.message);
     res.status(500).json({ error: 'Login failed' });
