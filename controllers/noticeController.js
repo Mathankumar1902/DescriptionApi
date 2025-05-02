@@ -54,46 +54,54 @@ exports.getNoticeById = async (req, res) => {
 // Update notice
 exports.updateNotice = async (req, res) => {
   try {
-    const { title, description, status } = req.body;
-    const profile = req.file?.path; // Only defined if new file is uploaded
-
-    // Get the existing notice by ID
-    const existing = await Description.findById(req.body.id);
+    // Get the one and only existing document
+    const existing = await Description.findOne();
     if (!existing) {
-      return res.status(404).json({ error: 'Notice not found to update' });
+      return res.status(404).json({ message: 'No notice found to update' });
     }
 
-    // Create an update object with the fields that are provided
+    const profile = req.file?.path;
     const updateData = {};
-    if (title !== undefined) updateData.title = title;
-    if (description !== undefined) updateData.description = description;
-    if (status !== undefined) updateData.status = status;
+    const updatedFields = [];
 
-    // Only update the profile if a new file is uploaded
+    if (req.body.title !== undefined) {
+      updateData.title = req.body.title;
+      updatedFields.push('title');
+    }
+    if (req.body.description !== undefined) {
+      updateData.description = req.body.description;
+      updatedFields.push('description');
+    }
+    if (req.body.status !== undefined) {
+      updateData.status = req.body.status;
+      updatedFields.push('status');
+    }
+
     if (profile && profile !== existing.profile) {
       updateData.profile = profile;
+      updatedFields.push('profile');
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: 'No valid fields provided for update' });
     }
 
     const updated = await Description.findByIdAndUpdate(
-      req.body.id,  // Use ID from request body or params
+      existing._id,
       { $set: updateData },
       { new: true, runValidators: true }
     );
 
-    if (updated) {
-      let updatedFields = Object.keys(updateData);
-      res.json({
-        message: `Notice updated successfully, updated fields: ${updatedFields.join(', ')}`,
-        data: updated,
-      });
-    } else {
-      res.status(400).json({ error: 'No fields were provided for update' });
-    }
+    return res.status(200).json({
+      message: `Updated fields: ${updatedFields.join(', ')}`,
+      data: updated
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to update notice' });
+    console.error('Update Error:', err);
+    return res.status(500).json({ message: 'Failed to update notice' });
   }
 };
+
 
 // Delete notice
 exports.deleteNotice = async (req, res) => {
