@@ -3,7 +3,7 @@ const Description = require('../models/Description');
 // Create new notice
 exports.createNotice = async (req, res) => {
   try {
-    const { title, description, status } = req.body;
+    const { title, description, status } = req.body || {};
     const profile = req.file?.path;
 
     const newNotice = new Description({
