@@ -1,10 +1,5 @@
 const User = require('../models/User');
 
-// Utility to validate email format
-if (!isValidEmail(email)) {
-  return res.status(400).json({ error: 'Invalid email format' });
-}
-
 // Get all users (email only)
 exports.getUsers = async (req, res) => {
   try {
@@ -24,11 +19,6 @@ exports.register = async (req, res) => {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
-  // Validate email format
-  if (!isValidEmail(email)) {
-    return res.status(400).json({ error: 'Invalid email format' });
-  }
-
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -39,6 +29,7 @@ exports.register = async (req, res) => {
     await user.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
+    console.error("Registration error:", error.message);
     res.status(500).json({ error: 'Registration failed' });
   }
 };
@@ -62,6 +53,7 @@ exports.login = async (req, res) => {
 
     res.json({ message: 'Login successful' });
   } catch (error) {
+    console.error("Login error:", error.message);
     res.status(500).json({ error: 'Login failed' });
   }
 };
