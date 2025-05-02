@@ -1,10 +1,9 @@
 const User = require('../models/User');
 
 // Utility to validate email format
-const isValidEmail = (email) => {
-  const regex = /^\S+@\S+\.\S+$/;
-  return regex.test(email);
-};
+if (!isValidEmail(email)) {
+  return res.status(400).json({ error: 'Invalid email format' });
+}
 
 // Get all users (email only)
 exports.getUsers = async (req, res) => {
