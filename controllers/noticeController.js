@@ -1,80 +1,28 @@
 const Description = require('../models/Description');
-const sharp = require("sharp");
-const axios = require("axios");
 
+CREATE - /create
 exports.createNotice = async (req, res) => {
   try {
-    const {
-      title = "",
-      description = "",
-      status = "",
-      profile = "",
-    } = req.body;
-
-    const fileProfile = req.file?.path || profile; // Cloudinary URL
-    console.log("Cloudinary URL:", fileProfile);
-
-    let dimensions = {};
-
-    if (fileProfile?.startsWith("http")) {
-      // Remote image from Cloudinary — fetch it and use sharp
-      const response = await axios.get(fileProfile, {
-        responseType: "arraybuffer",
-      });
-
-      const imageBuffer = Buffer.from(response.data, "binary");
-      const metadata = await sharp(imageBuffer).metadata();
-
-      dimensions = { width: metadata.width, height: metadata.height };
-    }
-
-    const newNotice = new Description({
-      title,
-      description,
-      status,
-      profile: fileProfile,
-      dimensions,
-    });
-
+  
+    const { title = '', description = '', status = '', profile = '' } = req.body;
+  
+    const fileProfile = req.file?.path || profile;
+    const newNotice = new Description({ title, description, status, profile: fileProfile });
     await newNotice.save();
 
+    // Send a response with the created notice
     res.status(201).json({
-      message: "Data created successfully",
+      message: 'Data created successfully',
       data: newNotice,
-      dimensions,
     });
   } catch (err) {
-    console.error("Create Error:", err);
+    console.error('Create Error:', err);
     res.status(500).json({
-      message: "Something went wrong while creating the data.",
+      message: 'Something went wrong while creating the data.',
       error: err.message,
     });
   }
 };
-
-// CREATE - /create
-// exports.createNotice = async (req, res) => {
-//   try {
-  
-//     const { title = '', description = '', status = '', profile = '' } = req.body;
-  
-//     const fileProfile = req.file?.path || profile;
-//     const newNotice = new Description({ title, description, status, profile: fileProfile });
-//     await newNotice.save();
-
-//     // Send a response with the created notice
-//     res.status(201).json({
-//       message: 'Data created successfully',
-//       data: newNotice,
-//     });
-//   } catch (err) {
-//     console.error('Create Error:', err);
-//     res.status(500).json({
-//       message: 'Something went wrong while creating the data.',
-//       error: err.message,
-//     });
-//   }
-// };
 
 
 // GET ALL - /getall
